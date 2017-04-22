@@ -1,13 +1,13 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
-MAINTAINER ilagnev "ilagnev@gmail.com"
+MAINTAINER Madhukar Thota "madhukar.thota@gmail.com"
 
-ENV NGINX_VERSION 1.11.3
+ENV NGINX_VERSION 1.11.10
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV LUA_MODULE_VERSION 0.10.6
+ENV LUA_MODULE_VERSION 0.10.8
 
 ENV LUAJIT_LIB=/usr/lib
-ENV LUAJIT_INC=/usr/include/luajit-2.0
+ENV LUAJIT_INC=/usr/include/luajit-2.1
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -59,6 +59,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
 	&& apk add --no-cache --virtual .build-deps \
+	        git \
 		gcc \
 		libc-dev \
 		make \
@@ -126,6 +127,14 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 			| xargs -r apk info --installed \
 			| sort -u \
 	)" \
+	&& cd /tmp \
+  	&& git clone https://github.com/keplerproject/luarocks.git \
+  	&& cd luarocks \
+  	&& sh ./configure \
+        	--lua-suffix=jit \
+        	--with-lua-include=/usr/include/luajit-2.1 \
+  	&& make build install \
+  	&& rm -rf /tmp/luarocks \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	&& apk del .build-deps \
 	&& apk del .gettext \
