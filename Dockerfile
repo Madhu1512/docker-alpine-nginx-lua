@@ -5,6 +5,7 @@ MAINTAINER Madhukar Thota "madhukar.thota@gmail.com"
 ENV NGINX_VERSION 1.11.10
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV LUA_MODULE_VERSION 0.10.8
+ENV LUAROCKS_VERSION 2.4.2
 
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.1
@@ -58,6 +59,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
+	&& apk update \ 
 	&& apk add --no-cache --virtual .build-deps \
 	        git \
 		gcc \
@@ -78,6 +80,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/simpl/ngx_devel_kit/archive/v$DEVEL_KIT_MODULE_VERSION.tar.gz -o ndk.tar.gz \
 	&& curl -fSL https://github.com/openresty/lua-nginx-module/archive/v$LUA_MODULE_VERSION.tar.gz -o lua.tar.gz \
+	&& curl -fSL https://github.com/luarocks/luarocks/archive/v${LUAROCKS_VERSION}.tar.gz -o luarocks.tar.gz \
 	&& export GNUPGHOME="$(mktemp -d)" \
 	&& gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" \
 	&& gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
@@ -86,7 +89,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& tar -zxC /usr/src -f ndk.tar.gz \
 	&& tar -zxC /usr/src -f lua.tar.gz \
-	&& rm nginx.tar.gz ndk.tar.gz lua.tar.gz \
+	&& tar -zxC /tmp -f luarocks.tar.gz \
+	&& rm nginx.tar.gz ndk.tar.gz lua.tar.gz luarocks.tar.gz \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -127,14 +131,12 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 			| xargs -r apk info --installed \
 			| sort -u \
 	)" \
-	&& cd /tmp \
-  	&& git clone https://github.com/keplerproject/luarocks.git \
-  	&& cd luarocks \
-  	&& sh ./configure \
-        	--lua-suffix=jit \
-        	--with-lua-include=/usr/include/luajit-2.1 \
+	&& cd /tmp/luarocks-* \
+  	&& ./configure \
+     	    --with-lua-include=${LUAJIT_INC} \
+    	    --lua-suffix=jit-2.1.0-beta2 \
   	&& make build install \
-  	&& rm -rf /tmp/luarocks \
+  	&& rm -rf /tmp/luarocks-* \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	&& apk del .build-deps \
 	&& apk del .gettext \
