@@ -131,12 +131,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 			| xargs -r apk info --installed \
 			| sort -u \
 	)" \
-	&& cd /tmp/luarocks-* \
-  	&& ./configure \
-     	    --with-lua-include=${LUAJIT_INC} \
-    	    --lua-suffix=jit-2.1.0-beta2 \
-  	&& make build install \
-  	&& rm -rf /tmp/luarocks-* \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	&& apk del .build-deps \
 	&& apk del .gettext \
