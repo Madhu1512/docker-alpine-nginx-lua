@@ -61,7 +61,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
-    && apk update \
+    	&& apk update \
 	&& apk add --no-cache --virtual .build-deps \
 		gcc \
 		libc-dev \
@@ -77,20 +77,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		geoip-dev \
 		perl-dev \
 	&& apk add --no-cache \
-	    git \
+	    	git \
 		bash \
 		openssl \
-        build-base \
-        curl \
-        gd \
-        geoip \
-        libgcc \
-        libxslt \
-        linux-headers \
-        make \
-        perl \
-        unzip \
-        zlib \
+		build-base \
+		curl \
+		gd \
+		geoip \
+		libgcc \
+		libxslt \
+		linux-headers \
+		make \
+		perl \
+		unzip \
+		zlib \
 	&& curl -fsSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fsSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fsSL https://github.com/simpl/ngx_devel_kit/archive/v$DEVEL_KIT_MODULE_VERSION.tar.gz -o ndk.tar.gz \
