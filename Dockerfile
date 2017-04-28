@@ -55,7 +55,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-		--with-ld-opt="-Wl,--strip-debug,-rpath,${LUAJIT_LIB}" \
+		--with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" \
 		--add-module=/usr/src/ngx_devel_kit-$DEVEL_KIT_MODULE_VERSION \
 		--add-module=/usr/src/lua-nginx-module \
 	" \
@@ -121,6 +121,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& make install \
 	&& ln -sf /usr/local/bin/luajit-* /usr/local/bin/lua \
+	&& ln -sf /usr/local/lib/libluajit-5.1.so.2* /usr/local/lib/libluajit-5.1.so.2 \
 	&& cd /tmp/luarocks-* \
 	&& ./configure \
 		--with-lua-include=${LUAJIT_INC} \
